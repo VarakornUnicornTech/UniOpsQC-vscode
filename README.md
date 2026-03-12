@@ -18,6 +18,12 @@ Automatically checks for framework updates on startup. Compare your local versio
 ### Smart Update Manager (Pro)
 Review file-by-file changes with AI-powered merge recommendations. Selectively apply updates with automatic backup and one-click rollback.
 
+### Session Log Dashboard (Pro)
+Browse your RoundTable session history directly from the sidebar. View session stats, open/closed status, and click to open any log file instantly.
+
+### Pro License System
+Activate Pro features with a license key from our store. Supports online validation via LemonSqueezy API with offline fallback for uninterrupted work.
+
 ## Quick Start
 
 1. Open a workspace in VS Code
@@ -56,13 +62,12 @@ Review file-by-file changes with AI-powered merge recommendations. Selectively a
 | Setup Project | Yes | Yes |
 | Check for Updates | Yes | Yes |
 | Update Manager | - | Yes |
-| Auto-backup | - | Yes |
-| Session Log Dashboard | - | Coming Soon |
+| Auto-backup & Rollback | - | Yes |
+| Session Log Dashboard | - | Yes |
 
-## Known Issues
+## Get Pro
 
-- First install requires an active internet connection to clone from GitHub
-- Update Manager requires a Pro license key (contact us for early access)
+Upgrade to Pro to unlock the full power of RoundTable Hub — Update Manager, Session Log Dashboard, auto-backup, and more.
 
 ## About RoundTable Framework
 

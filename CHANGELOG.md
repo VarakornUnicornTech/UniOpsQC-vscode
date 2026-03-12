@@ -2,6 +2,13 @@
 
 All notable changes to the RoundTable Hub extension will be documented in this file.
 
+## [1.0.1] - 2026-03-12
+
+### Changed
+- Updated README for v1.0.0 Pro features — removed outdated "Coming Soon" labels, added Session Log Dashboard and Pro License System descriptions, removed broken shields.io badges
+
+---
+
 ## [1.0.0] - 2026-03-12
 
 ### Added
