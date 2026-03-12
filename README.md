@@ -1,8 +1,8 @@
 # RoundTable Hub
 
-[![Version](https://img.shields.io/visual-studio-marketplace/v/UnicornTech.roundtable-hub)](https://marketplace.visualstudio.com/items?itemName=UnicornTech.roundtable-hub)
-[![Installs](https://img.shields.io/visual-studio-marketplace/i/UnicornTech.roundtable-hub)](https://marketplace.visualstudio.com/items?itemName=UnicornTech.roundtable-hub)
-[![License](https://img.shields.io/github/license/VarakornUnicornTech/roundtable-hub-vscode)](https://github.com/VarakornUnicornTech/roundtable-hub-vscode/blob/main/LICENSE)
+[![Version](https://img.shields.io/badge/version-0.1.1-blue)](https://marketplace.visualstudio.com/items?itemName=UnicornTech.roundtable-hub)
+[![VS Code](https://img.shields.io/badge/VS%20Code-1.110%2B-007ACC)](https://marketplace.visualstudio.com/items?itemName=UnicornTech.roundtable-hub)
+[![License](https://img.shields.io/badge/license-MIT-green)](https://github.com/VarakornUnicornTech/roundtable-hub-vscode/blob/main/LICENSE)
 
 **Management hub for RoundTable Framework** — the multi-team AI governance framework for Claude Code.
 
