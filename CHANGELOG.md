@@ -2,6 +2,14 @@
 
 All notable changes to the RoundTable Hub extension will be documented in this file.
 
+## [0.1.2] - 2026-03-12
+
+### Changed
+- Updated extension icon to new logo design
+- Removed external badge images from README to prevent broken images on Marketplace
+
+---
+
 ## [0.1.1] - 2026-03-12
 
 ### Added
