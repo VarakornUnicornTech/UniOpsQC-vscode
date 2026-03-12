@@ -1,6 +1,13 @@
 import * as vscode from 'vscode';
+import * as path from 'path';
 import { TemplateService } from '../services/template';
-import { isProUser } from '../services/config';
+import { isProUser, PURCHASE_URL } from '../services/config';
+import { scanRoundTableLogs, getLogStats, type RoundTableFile } from '../services/sessionLog';
+
+function getExtensionVersion(): string {
+  const ext = vscode.extensions.getExtension('UnicornTech.roundtable-hub');
+  return ext?.packageJSON?.version || '0.0.0';
+}
 
 export class SidebarProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = 'roundtable-hub.sidebar';
@@ -37,10 +44,16 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           vscode.commands.executeCommand('roundtable.update');
           break;
         case 'upgrade':
-          vscode.window.showInformationMessage(
-            'RoundTable Hub Pro is coming soon! Stay tuned for premium features.',
-            'OK'
-          );
+          vscode.env.openExternal(vscode.Uri.parse(PURCHASE_URL));
+          break;
+        case 'openLog':
+          if (message.path) {
+            const doc = vscode.workspace.openTextDocument(message.path);
+            doc.then((d) => vscode.window.showTextDocument(d));
+          }
+          break;
+        case 'enterKey':
+          vscode.commands.executeCommand('workbench.action.openSettings', 'roundtable.licenseKey');
           break;
         case 'refresh':
           this.updateContent();
@@ -58,21 +71,25 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     let installed = false;
     let version = 'unknown';
     let fileCount = 0;
+    let logFiles: RoundTableFile[] = [];
 
     if (workspaceRoot) {
       const template = new TemplateService(workspaceRoot);
       installed = template.isInstalled();
       version = template.getLocalVersion() || 'unknown';
       fileCount = installed ? template.getInstalledFiles().length : 0;
+      if (installed) {
+        logFiles = scanRoundTableLogs(workspaceRoot);
+      }
     }
 
     const isPro = isProUser();
 
     const logoUri = this._view.webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, 'media', 'logo2.png')
+      vscode.Uri.joinPath(this._extensionUri, 'media', 'logo3_square.png')
     );
 
-    this._view.webview.html = this.getHtml(installed, version, fileCount, isPro, logoUri);
+    this._view.webview.html = this.getHtml(installed, version, fileCount, isPro, logoUri, logFiles);
   }
 
   private getHtml(
@@ -80,7 +97,8 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     version: string,
     fileCount: number,
     isPro: boolean,
-    logoUri: vscode.Uri
+    logoUri: vscode.Uri,
+    logFiles: RoundTableFile[] = []
   ): string {
     const icons = this.getIcons();
 
@@ -121,14 +139,14 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     <!-- Footer -->
     <div class="divider"></div>
     <div class="footer">
-      <span class="footer-version">${icons.tag} v0.1.0</span>
+      <span class="footer-version">${icons.tag} v${getExtensionVersion()}</span>
     </div>
 
   </div>
 </body>
 <script>
   const vscode = acquireVsCodeApi();
-  function send(cmd) { vscode.postMessage({ command: cmd }); }
+  function send(cmd, data) { vscode.postMessage({ command: cmd, path: data }); }
 </script>
 </html>`;
     }
@@ -204,6 +222,20 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
     <div class="divider"></div>
 
+    <!-- Session Log Dashboard -->
+    ${isPro ? this.getSessionLogHtml(logFiles) : `
+    <div class="card card-locked">
+      <div class="card-header">
+        <span class="card-title">Session Logs</span>
+        <span class="pro-lock">PRO</span>
+      </div>
+      <p class="locked-description">View and browse your RoundTable session history directly from the sidebar.</p>
+      <button class="btn btn-small" onclick="send('upgrade')">Unlock with Pro</button>
+    </div>
+    `}
+
+    <div class="divider"></div>
+
     ${!isPro ? `
     <!-- Upgrade to Pro -->
     <div class="card card-upgrade">
@@ -226,7 +258,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
     <!-- Footer -->
     <div class="footer">
-      <span class="footer-version">${icons.tag} v0.1.0</span>
+      <span class="footer-version">${icons.tag} v${getExtensionVersion()}</span>
       <button class="btn-link" onclick="send('refresh')">
         ${icons.refresh} Refresh
       </button>
@@ -236,9 +268,67 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 </body>
 <script>
   const vscode = acquireVsCodeApi();
-  function send(cmd) { vscode.postMessage({ command: cmd }); }
+  function send(cmd, data) { vscode.postMessage({ command: cmd, path: data }); }
 </script>
 </html>`;
+  }
+
+  private getSessionLogHtml(logFiles: RoundTableFile[]): string {
+    const stats = getLogStats(logFiles);
+    const recentFiles = logFiles.slice(0, 5); // Show last 5 days
+
+    if (logFiles.length === 0) {
+      return `
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Session Logs</span>
+        </div>
+        <p class="empty-state">No RoundTable logs found yet. Start a Claude Code session to generate your first log.</p>
+      </div>`;
+    }
+
+    const fileItems = recentFiles.map((f) => {
+      const sessionCount = f.sessions.length;
+      const openCount = f.sessions.filter((s) => s.status === 'OPEN').length;
+      const statusDot = openCount > 0 ? '<span class="dot dot-open"></span>' : '<span class="dot dot-closed"></span>';
+      const escapedPath = f.fullPath.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+
+      return `
+        <button class="log-item" onclick="send('openLog', '${escapedPath}')">
+          <div class="log-item-header">
+            ${statusDot}
+            <span class="log-date">${f.date}</span>
+            <span class="log-count">${sessionCount} session${sessionCount !== 1 ? 's' : ''}</span>
+          </div>
+          ${f.sessions.length > 0 ? `<span class="log-preview">${f.sessions[f.sessions.length - 1].title}</span>` : ''}
+        </button>`;
+    }).join('');
+
+    return `
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Session Logs</span>
+      </div>
+      <div class="status-row">
+        <span class="status-label">Total Sessions</span>
+        <span class="status-value">${stats.totalSessions}</span>
+      </div>
+      <div class="status-row">
+        <span class="status-label">Log Files</span>
+        <span class="status-value">${stats.totalFiles}</span>
+      </div>
+      ${stats.openSessions > 0 ? `
+      <div class="status-row">
+        <span class="status-label">Open Sessions</span>
+        <span class="status-value status-open">${stats.openSessions}</span>
+      </div>` : ''}
+    </div>
+    <div class="section" style="margin-top: 8px;">
+      <h2 class="section-title">Recent Logs</h2>
+      <div class="log-list">
+        ${fileItems}
+      </div>
+    </div>`;
   }
 
   private getIcons(): Record<string, string> {
@@ -654,6 +744,107 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
       .btn-link svg {
         width: 12px;
         height: 12px;
+      }
+
+      /* ===== Session Log Dashboard ===== */
+      .log-list {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .log-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        width: 100%;
+        padding: 8px 10px;
+        background: var(--vscode-editor-background, rgba(255,255,255,0.04));
+        border: 1px solid var(--vscode-widget-border, rgba(128,128,128,0.15));
+        border-radius: 6px;
+        cursor: pointer;
+        font-family: inherit;
+        color: var(--vscode-foreground);
+        text-align: left;
+        transition: all 0.15s ease;
+      }
+
+      .log-item:hover {
+        border-color: var(--vscode-focusBorder, rgba(128,128,128,0.3));
+        background: var(--vscode-list-hoverBackground, rgba(255,255,255,0.06));
+      }
+
+      .log-item-header {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+      }
+
+      .log-date {
+        font-weight: 600;
+        font-size: 12px;
+      }
+
+      .log-count {
+        margin-left: auto;
+        font-size: 11px;
+        opacity: 0.6;
+      }
+
+      .log-preview {
+        font-size: 11px;
+        opacity: 0.55;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+
+      .dot-open {
+        background: #4caf50;
+        box-shadow: 0 0 4px rgba(76, 175, 80, 0.4);
+      }
+
+      .dot-closed {
+        background: var(--vscode-descriptionForeground, rgba(128,128,128,0.5));
+        opacity: 0.5;
+      }
+
+      .card-locked {
+        opacity: 0.7;
+        border-style: dashed;
+      }
+
+      .locked-description {
+        font-size: 12px;
+        opacity: 0.65;
+        margin-bottom: 10px;
+        line-height: 1.5;
+      }
+
+      .empty-state {
+        font-size: 12px;
+        opacity: 0.55;
+        text-align: center;
+        padding: 12px 0;
+        line-height: 1.6;
+      }
+
+      .status-open {
+        color: #4caf50;
+      }
+
+      .btn-small {
+        padding: 5px 12px;
+        font-size: 11px;
+        width: auto;
       }
 
       /* ===== Utility ===== */

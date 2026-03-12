@@ -2,6 +2,27 @@
 
 All notable changes to the RoundTable Hub extension will be documented in this file.
 
+## [1.0.0] - 2026-03-12
+
+### Added
+- **Pro License System** — LemonSqueezy license key validation with offline fallback
+- **Session Log Dashboard** — Browse RoundTable session history directly from sidebar (Pro)
+- **Purchase Flow** — One-click upgrade button linking to LemonSqueezy storefront
+- Pro/Free badge display in sidebar header
+- License key configuration in VS Code Settings
+
+### Changed
+- Sidebar dynamically shows Pro or Free features based on license status
+- Updated extension icon to new logo design
+- Removed external badge images from README
+
+### Notes
+- First monetized release — Pro features require a valid license key
+- Free tier includes: Install, Setup, Check for Updates
+- Pro tier adds: Update Framework, Session Log Dashboard
+
+---
+
 ## [0.1.2] - 2026-03-12
 
 ### Changed

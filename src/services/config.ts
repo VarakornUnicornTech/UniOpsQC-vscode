@@ -16,8 +16,12 @@ export function isAutoCheckEnabled(): boolean {
 }
 
 export function isProUser(): boolean {
+  // Synchronous check: key exists and matches known format
   const key = getLicenseKey();
-  // MVP: any non-empty key is treated as valid
-  // TODO: Add server-side verification with Stripe/Supabase
-  return key.length > 0;
+  if (!key || key.trim().length === 0) { return false; }
+  // Accept LemonSqueezy format or RT- prefix format
+  return /^[A-F0-9]{8}-[A-F0-9]{8}-[A-F0-9]{8}-[A-F0-9]{8}$/i.test(key.trim()) ||
+         /^RT-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/i.test(key.trim());
 }
+
+export const PURCHASE_URL = 'https://unicorntech.lemonsqueezy.com/buy/roundtable-hub-pro';
