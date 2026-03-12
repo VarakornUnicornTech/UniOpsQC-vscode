@@ -21,6 +21,24 @@ Review file-by-file changes with AI-powered merge recommendations. Selectively a
 ### Session Log Dashboard (Pro)
 Browse your RoundTable session history directly from the sidebar. View session stats, open/closed status, and click to open any log file instantly.
 
+### Visual ProjectEnvironment Editor (Pro)
+Add, edit, and remove projects through a sidebar form UI instead of editing markdown manually.
+
+### Framework Health Check (Pro)
+Verify framework integrity with a score and detailed file-by-file status report covering core files, policies, and team rosters.
+
+### Policy Browser (Pro)
+Browse and open all governance policy files directly from the sidebar — quick access to every RoundTable policy section.
+
+### Team Roster Viewer (Pro)
+View all teams, members, roles, and responsibilities in a collapsible tree view. Click through to open the full roster file.
+
+### Session Statistics (Pro)
+Track your RoundTable session activity with metrics like total sessions, daily averages, activity streaks, and team participation.
+
+### Quick Session Open (Free)
+One-click button to create or open today's RoundTable session file — no manual file navigation needed.
+
 ### Pro License System
 Activate Pro features with a license key from our store. Supports online validation via LemonSqueezy API with offline fallback for uninterrupted work.
 
@@ -61,13 +79,19 @@ Activate Pro features with a license key from our store. Supports online validat
 | Install Framework | Yes | Yes |
 | Setup Project | Yes | Yes |
 | Check for Updates | Yes | Yes |
+| Quick Session Open | Yes | Yes |
 | Update Manager | - | Yes |
 | Auto-backup & Rollback | - | Yes |
 | Session Log Dashboard | - | Yes |
+| ProjectEnvironment Editor | - | Yes |
+| Framework Health Check | - | Yes |
+| Policy Browser | - | Yes |
+| Team Roster Viewer | - | Yes |
+| Session Statistics | - | Yes |
 
 ## Get Pro
 
-Upgrade to Pro to unlock the full power of RoundTable Hub — Update Manager, Session Log Dashboard, auto-backup, and more.
+Upgrade to Pro to unlock the full power of RoundTable Hub — Update Manager, Session Logs, Policy Browser, Team Roster Viewer, Health Check, Statistics, and more.
 
 ## About RoundTable Framework
 

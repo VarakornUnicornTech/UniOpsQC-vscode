@@ -2,9 +2,11 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import { TemplateService } from '../services/template';
 import { isProUser, PURCHASE_URL } from '../services/config';
-import { scanRoundTableLogs, getLogStats, type RoundTableFile } from '../services/sessionLog';
+import { scanRoundTableLogs, getLogStats, getExtendedStats, type RoundTableFile, type SessionStats } from '../services/sessionLog';
 import { parseProjectEnvironment, writeProjectEnvironment } from '../services/projectEnv';
 import { runHealthCheck, getHealthSummary, type HealthResult } from '../services/healthCheck';
+import { scanPolicies, type PolicyFile } from '../services/policyBrowser';
+import { scanRosters, type TeamRoster } from '../services/rosterViewer';
 import type { ProjectConfig } from '../services/template';
 
 function getExtensionVersion(): string {
@@ -117,6 +119,13 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           }
           break;
         }
+        case 'openPolicy':
+        case 'openRoster':
+          if (message.path) {
+            const docFile = vscode.workspace.openTextDocument(message.path);
+            docFile.then((d) => vscode.window.showTextDocument(d));
+          }
+          break;
         case 'refresh':
           this.updateContent();
           break;
@@ -136,6 +145,9 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     let logFiles: RoundTableFile[] = [];
     let projects: ProjectConfig[] = [];
     let healthResults: HealthResult[] = [];
+    let policies: PolicyFile[] = [];
+    let rosters: TeamRoster[] = [];
+    let extStats: SessionStats | null = null;
 
     if (workspaceRoot) {
       const template = new TemplateService(workspaceRoot);
@@ -146,6 +158,9 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
         logFiles = scanRoundTableLogs(workspaceRoot);
         projects = parseProjectEnvironment(workspaceRoot);
         healthResults = runHealthCheck(workspaceRoot);
+        policies = scanPolicies(workspaceRoot);
+        rosters = scanRosters(workspaceRoot);
+        extStats = getExtendedStats(logFiles);
       }
     }
 
@@ -155,7 +170,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
       vscode.Uri.joinPath(this._extensionUri, 'media', 'logo3_square.png')
     );
 
-    this._view.webview.html = this.getHtml(installed, version, fileCount, isPro, logoUri, logFiles, projects, healthResults);
+    this._view.webview.html = this.getHtml(installed, version, fileCount, isPro, logoUri, logFiles, projects, healthResults, policies, rosters, extStats);
   }
 
   private getHtml(
@@ -166,7 +181,10 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     logoUri: vscode.Uri,
     logFiles: RoundTableFile[] = [],
     projects: ProjectConfig[] = [],
-    healthResults: HealthResult[] = []
+    healthResults: HealthResult[] = [],
+    policies: PolicyFile[] = [],
+    rosters: TeamRoster[] = [],
+    extStats: SessionStats | null = null
   ): string {
     const icons = this.getIcons();
 
@@ -336,6 +354,48 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
     <div class="divider"></div>
 
+    <!-- Policy Browser -->
+    ${isPro ? this.getPolicyBrowserHtml(policies) : `
+    <div class="card card-locked">
+      <div class="card-header">
+        <span class="card-title">Policy Browser</span>
+        <span class="pro-lock">PRO</span>
+      </div>
+      <p class="locked-description">Browse and read all RoundTable governance policies directly from the sidebar.</p>
+      <button class="btn btn-small" onclick="send('upgrade')">Unlock with Pro</button>
+    </div>
+    `}
+
+    <div class="divider"></div>
+
+    <!-- Team Roster Viewer -->
+    ${isPro ? this.getTeamRosterHtml(rosters) : `
+    <div class="card card-locked">
+      <div class="card-header">
+        <span class="card-title">Team Roster</span>
+        <span class="pro-lock">PRO</span>
+      </div>
+      <p class="locked-description">View all team members, roles, and responsibilities across the RoundTable organization.</p>
+      <button class="btn btn-small" onclick="send('upgrade')">Unlock with Pro</button>
+    </div>
+    `}
+
+    <div class="divider"></div>
+
+    <!-- Session Statistics -->
+    ${isPro ? this.getSessionStatsHtml(extStats) : `
+    <div class="card card-locked">
+      <div class="card-header">
+        <span class="card-title">Session Statistics</span>
+        <span class="pro-lock">PRO</span>
+      </div>
+      <p class="locked-description">Track your RoundTable session activity — streaks, averages, team participation.</p>
+      <button class="btn btn-small" onclick="send('upgrade')">Unlock with Pro</button>
+    </div>
+    `}
+
+    <div class="divider"></div>
+
     ${!isPro ? `
     <!-- Upgrade to Pro -->
     <div class="card card-upgrade">
@@ -345,8 +405,11 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
       <ul class="pro-features">
         <li>${icons.star} Visual ProjectEnvironment editor</li>
         <li>${icons.star} One-click framework updates</li>
-        <li>${icons.star} Auto-backup before updates</li>
         <li>${icons.star} Session log dashboard</li>
+        <li>${icons.star} Framework health check</li>
+        <li>${icons.star} Policy browser</li>
+        <li>${icons.star} Team roster viewer</li>
+        <li>${icons.star} Session statistics & streaks</li>
       </ul>
       <button class="btn btn-upgrade" onclick="send('upgrade')">
         <span>Upgrade Now</span>
@@ -606,6 +669,153 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
         <label class="form-label">Notes</label>
         <input class="form-input" id="${prefix}-notes" value="${notes}" placeholder="Project notes..." />
       </div>`;
+  }
+
+  private getPolicyBrowserHtml(policies: PolicyFile[]): string {
+    if (policies.length === 0) {
+      return `
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Policy Browser</span>
+        </div>
+        <p class="empty-state">No policies found. Install the framework to access governance policies.</p>
+      </div>`;
+    }
+
+    const items = policies.map((p) => {
+      const escapedPath = p.fullPath.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+      return `
+        <button class="log-item" onclick="send('openPolicy', '${escapedPath}')">
+          <div class="log-item-header">
+            <span class="policy-badge">${p.sectionNumber}</span>
+            <span class="log-date">${p.title}</span>
+          </div>
+          ${p.preview ? `<span class="log-preview">${p.preview}</span>` : ''}
+        </button>`;
+    }).join('');
+
+    return `
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Policy Browser</span>
+      </div>
+      <div class="log-list">
+        ${items}
+      </div>
+    </div>`;
+  }
+
+  private getTeamRosterHtml(rosters: TeamRoster[]): string {
+    if (rosters.length === 0) {
+      return `
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Team Roster</span>
+        </div>
+        <p class="empty-state">No team rosters found. Install the framework to view team assignments.</p>
+      </div>`;
+    }
+
+    const teamCards = rosters.map((r) => {
+      const escapedPath = r.fullPath.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+      const memberRows = r.members.map((m) => `
+        <div class="roster-row">
+          <span class="roster-code">${m.code}</span>
+          <span class="roster-name">${m.name}</span>
+          <span class="roster-role">${m.role}</span>
+        </div>`).join('');
+
+      return `
+        <details class="roster-team">
+          <summary class="roster-team-header">
+            <span class="roster-team-name">${r.teamName}</span>
+            <span class="roster-member-count">${r.members.length}</span>
+          </summary>
+          <div class="roster-members">
+            ${r.context ? `<div class="roster-context">${r.context}</div>` : ''}
+            ${memberRows}
+            <button class="btn-link" style="margin-top:6px;" onclick="send('openRoster', '${escapedPath}')">View Full Roster</button>
+          </div>
+        </details>`;
+    }).join('');
+
+    const totalMembers = rosters.reduce((sum, r) => sum + r.members.length, 0);
+
+    return `
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Team Roster</span>
+      </div>
+      <div class="status-row">
+        <span class="status-label">Teams</span>
+        <span class="status-value">${rosters.length}</span>
+      </div>
+      <div class="status-row">
+        <span class="status-label">Members</span>
+        <span class="status-value">${totalMembers}</span>
+      </div>
+      <div class="roster-list" style="margin-top:8px;">
+        ${teamCards}
+      </div>
+    </div>`;
+  }
+
+  private getSessionStatsHtml(stats: SessionStats | null): string {
+    if (!stats || stats.totalSessions === 0) {
+      return `
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Session Statistics</span>
+        </div>
+        <p class="empty-state">No session data available yet. Start logging RoundTable sessions to see your activity stats.</p>
+      </div>`;
+    }
+
+    const streakLabel = stats.activityStreak > 0
+      ? `<span class="streak-badge">${stats.activityStreak} day${stats.activityStreak > 1 ? 's' : ''}</span>`
+      : '<span class="streak-badge streak-none">0 days</span>';
+
+    const participantTags = stats.uniqueParticipants.slice(0, 8).map(
+      (p) => `<span class="participant-tag">${p}</span>`
+    ).join('');
+
+    return `
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Session Statistics</span>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-box">
+          <span class="stat-number">${stats.totalSessions}</span>
+          <span class="stat-label">Total Sessions</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-number">${stats.sessionsLast7Days}</span>
+          <span class="stat-label">Last 7 Days</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-number">${stats.avgSessionsPerDay}</span>
+          <span class="stat-label">Avg / Day</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-number">${stats.completedSessions}</span>
+          <span class="stat-label">Completed</span>
+        </div>
+      </div>
+      <div class="status-row" style="margin-top:8px;">
+        <span class="status-label">Activity Streak</span>
+        ${streakLabel}
+      </div>
+      <div class="status-row">
+        <span class="status-label">Most Active Day</span>
+        <span class="status-value">${stats.mostActiveDay} <span style="opacity:0.5">(${stats.mostActiveCount})</span></span>
+      </div>
+      ${stats.uniqueParticipants.length > 0 ? `
+      <div style="margin-top:8px;">
+        <span class="status-label" style="display:block;margin-bottom:4px;">Participants</span>
+        <div class="participant-list">${participantTags}</div>
+      </div>` : ''}
+    </div>`;
   }
 
   private getIcons(): Record<string, string> {
@@ -1337,6 +1547,157 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
         display: flex;
         gap: 6px;
         margin-top: 10px;
+      }
+
+      /* ===== Policy Browser ===== */
+      .policy-badge {
+        font-size: 10px;
+        font-weight: 700;
+        background: rgba(232, 75, 138, 0.12);
+        color: #E84B8A;
+        padding: 1px 5px;
+        border-radius: 4px;
+        letter-spacing: 0.02em;
+        flex-shrink: 0;
+      }
+
+      /* ===== Team Roster Viewer ===== */
+      .roster-team {
+        margin-bottom: 4px;
+      }
+
+      .roster-team-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 6px 8px;
+        cursor: pointer;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        user-select: none;
+        transition: background 0.15s ease;
+      }
+
+      .roster-team-header:hover {
+        background: var(--vscode-list-hoverBackground, rgba(255,255,255,0.06));
+      }
+
+      .roster-team-name {
+        font-size: 12px;
+      }
+
+      .roster-member-count {
+        font-size: 10px;
+        font-weight: 600;
+        opacity: 0.5;
+        background: var(--vscode-badge-background, rgba(255,255,255,0.1));
+        padding: 1px 6px;
+        border-radius: 8px;
+      }
+
+      .roster-members {
+        padding: 6px 8px 8px;
+      }
+
+      .roster-context {
+        font-size: 11px;
+        opacity: 0.55;
+        font-style: italic;
+        margin-bottom: 6px;
+        line-height: 1.4;
+      }
+
+      .roster-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 4px 0;
+        font-size: 11px;
+        border-bottom: 1px solid var(--vscode-widget-border, rgba(128,128,128,0.08));
+      }
+
+      .roster-row:last-of-type {
+        border-bottom: none;
+      }
+
+      .roster-code {
+        font-weight: 700;
+        font-size: 11px;
+        min-width: 28px;
+        color: #E84B8A;
+      }
+
+      .roster-name {
+        font-weight: 500;
+        min-width: 60px;
+      }
+
+      .roster-role {
+        opacity: 0.55;
+        font-size: 10px;
+        margin-left: auto;
+      }
+
+      /* ===== Session Statistics ===== */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .stat-box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 10px 6px;
+        background: var(--vscode-editor-background, rgba(255,255,255,0.02));
+        border: 1px solid var(--vscode-widget-border, rgba(128,128,128,0.12));
+        border-radius: 6px;
+      }
+
+      .stat-number {
+        font-size: 20px;
+        font-weight: 700;
+        line-height: 1;
+        color: var(--vscode-foreground);
+      }
+
+      .stat-label {
+        font-size: 10px;
+        opacity: 0.5;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-top: 4px;
+      }
+
+      .streak-badge {
+        font-size: 11px;
+        font-weight: 600;
+        background: rgba(76, 175, 80, 0.12);
+        color: #4caf50;
+        padding: 2px 8px;
+        border-radius: 10px;
+      }
+
+      .streak-none {
+        background: rgba(128, 128, 128, 0.1);
+        color: var(--vscode-descriptionForeground);
+      }
+
+      .participant-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+      }
+
+      .participant-tag {
+        font-size: 10px;
+        font-weight: 600;
+        background: var(--vscode-badge-background, rgba(255,255,255,0.1));
+        color: var(--vscode-badge-foreground, var(--vscode-foreground));
+        padding: 2px 6px;
+        border-radius: 4px;
       }
 
       /* ===== Utility ===== */

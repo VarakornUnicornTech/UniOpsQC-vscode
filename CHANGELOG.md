@@ -2,6 +2,21 @@
 
 All notable changes to the RoundTable Hub extension will be documented in this file.
 
+## [1.2.0] - 2026-03-12
+
+### Added
+- **Policy Browser** (Pro) — Browse and open all governance policy files directly from the sidebar
+- **Team Roster Viewer** (Pro) — View teams, members, roles, and responsibilities in a collapsible tree view
+- **Session Statistics** (Pro) — Activity metrics: total sessions, daily averages, streaks, and participant tracking
+
+### Changed
+- Async license validation now runs on extension startup with 24-hour cache
+- License key changes automatically trigger re-validation and sidebar refresh
+- Updated README with full Free vs Pro feature comparison
+- Expanded "Upgrade to Pro" feature list in sidebar to include all Pro features
+
+---
+
 ## [1.1.0] - 2026-03-12
 
 ### Added

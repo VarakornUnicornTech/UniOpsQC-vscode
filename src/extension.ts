@@ -5,6 +5,7 @@ import { setupProject } from './commands/setup';
 import { checkForUpdates } from './commands/versionCheck';
 import { updateFramework } from './commands/update';
 import { isAutoCheckEnabled } from './services/config';
+import { validateLicense, clearLicenseCache } from './services/license';
 
 export function activate(context: vscode.ExtensionContext) {
   console.log('RoundTable Hub activated');
@@ -42,6 +43,29 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand('roundtable.update', async () => {
       await updateFramework();
       sidebarProvider.updateContent();
+    })
+  );
+
+  // Validate license on startup (async, non-blocking)
+  validateLicense().then((status) => {
+    if (status.valid) {
+      console.log('RoundTable Hub: Pro license validated');
+    }
+    // Refresh sidebar to reflect validated status
+    sidebarProvider.updateContent();
+  }).catch(() => {
+    // Silent fail — offline fallback handled in validateLicense()
+  });
+
+  // Re-validate when license key setting changes
+  context.subscriptions.push(
+    vscode.workspace.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration('roundtable.licenseKey')) {
+        clearLicenseCache();
+        validateLicense().then(() => {
+          sidebarProvider.updateContent();
+        });
+      }
     })
   );
 
