@@ -1,0 +1,102 @@
+{
+  "name": "roundtable-hub",
+  "displayName": "RoundTable Hub",
+  "description": "Management hub for RoundTable Framework — one-click install, visual setup, version management",
+  "version": "0.1.0",
+  "publisher": "UnicornTech",
+  "license": "MIT",
+  "icon": "media/logo2_square.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/VarakornUnicornTech/roundtable-hub-vscode"
+  },
+  "homepage": "https://github.com/VarakornUnicornTech/unicorn_roundtable_framework_repo",
+  "engines": {
+    "vscode": "^1.110.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "roundtable",
+    "claude",
+    "claude-code",
+    "ai-governance",
+    "framework"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "roundtable-hub",
+          "title": "RoundTable Hub",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "roundtable-hub": [
+        {
+          "type": "webview",
+          "id": "roundtable-hub.sidebar",
+          "name": "RoundTable Hub"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "roundtable.install",
+        "title": "RoundTable: Install Framework"
+      },
+      {
+        "command": "roundtable.setup",
+        "title": "RoundTable: Setup Project"
+      },
+      {
+        "command": "roundtable.checkUpdate",
+        "title": "RoundTable: Check for Updates"
+      },
+      {
+        "command": "roundtable.update",
+        "title": "RoundTable: Update Framework"
+      }
+    ],
+    "configuration": {
+      "title": "RoundTable Hub",
+      "properties": {
+        "roundtable.repoUrl": {
+          "type": "string",
+          "default": "VarakornUnicornTech/unicorn_roundtable_framework_repo",
+          "description": "GitHub repository for RoundTable Framework template"
+        },
+        "roundtable.licenseKey": {
+          "type": "string",
+          "default": "",
+          "description": "License key for RoundTable Hub Pro features"
+        },
+        "roundtable.autoCheckUpdates": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically check for framework updates on startup"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "esbuild ./src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --sourcemap",
+    "watch": "npm run build -- --watch",
+    "package": "npm run build -- --minify",
+    "lint": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^25.4.0",
+    "@types/vscode": "^1.110.0",
+    "@vscode/vsce": "^3.7.1",
+    "esbuild": "^0.27.3",
+    "typescript": "^5.9.3"
+  }
+}
