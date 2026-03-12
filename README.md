@@ -1,5 +1,9 @@
 # RoundTable Hub
 
+[![Version](https://img.shields.io/visual-studio-marketplace/v/UnicornTech.roundtable-hub)](https://marketplace.visualstudio.com/items?itemName=UnicornTech.roundtable-hub)
+[![Installs](https://img.shields.io/visual-studio-marketplace/i/UnicornTech.roundtable-hub)](https://marketplace.visualstudio.com/items?itemName=UnicornTech.roundtable-hub)
+[![License](https://img.shields.io/github/license/VarakornUnicornTech/roundtable-hub-vscode)](https://github.com/VarakornUnicornTech/roundtable-hub-vscode/blob/main/LICENSE)
+
 **Management hub for RoundTable Framework** — the multi-team AI governance framework for Claude Code.
 
 By [Unicorn Tech Int Co.,Ltd.](https://github.com/VarakornUnicornTech)
@@ -25,9 +29,18 @@ Review file-by-file changes with AI-powered merge recommendations. Selectively a
 3. Click **Install RoundTable Framework**
 4. Run **Setup Project** to configure your environment
 
+## Commands
+
+| Command | Description |
+|---------|-------------|
+| `RoundTable: Install Framework` | Clone and install the framework into your workspace |
+| `RoundTable: Setup Project` | Configure ProjectEnvironment.md via interactive wizard |
+| `RoundTable: Check for Updates` | Compare local version against latest release |
+| `RoundTable: Update Framework` | Apply framework updates with backup (Pro) |
+
 ## Requirements
 
-- VS Code 1.85.0 or later
+- VS Code 1.110.0 or later
 - Git installed and available in PATH
 - Internet connection (for GitHub API access)
 
@@ -50,11 +63,20 @@ Review file-by-file changes with AI-powered merge recommendations. Selectively a
 | Auto-backup | - | Yes |
 | Session Log Dashboard | - | Coming Soon |
 
+## Known Issues
+
+- First install requires an active internet connection to clone from GitHub
+- Update Manager requires a Pro license key (contact us for early access)
+
 ## About RoundTable Framework
 
 RoundTable is a multi-team AI governance framework for Claude Code that enables structured collaboration between specialized AI teams (Overseer, Monolith, Syndicate, Arcade) with built-in policies, logging, and quality assurance.
 
 Learn more: [RoundTable Framework on GitHub](https://github.com/VarakornUnicornTech/unicorn_roundtable_framework_repo)
+
+## Contributing
+
+Found a bug or have a feature request? [Open an issue](https://github.com/VarakornUnicornTech/roundtable-hub-vscode/issues) on GitHub.
 
 ## License
 

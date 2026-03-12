@@ -14,8 +14,13 @@
   "engines": {
     "vscode": "^1.110.0"
   },
+  "galleryBanner": {
+    "color": "#1a1a2e",
+    "theme": "dark"
+  },
   "categories": [
-    "Other"
+    "Other",
+    "Machine Learning"
   ],
   "keywords": [
     "roundtable",
