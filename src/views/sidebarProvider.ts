@@ -181,7 +181,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     const proSource = 'free';
 
     const logoUri = this._view.webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, 'media', 'logo3_square.png')
+      vscode.Uri.joinPath(this._extensionUri, 'media', 'logo4.png')
     );
 
     this._view.webview.html = this.getHtml(installed, version, fileCount, isPro, logoUri, logFiles, projects, healthResults, policies, rosters, extStats, proSource, trialDays);

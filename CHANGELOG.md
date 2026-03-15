@@ -1,6 +1,14 @@
 # Changelog
 
-All notable changes to the RoundTable Hub extension will be documented in this file.
+All notable changes to the UniOpsQC Hub extension will be documented in this file.
+
+## [1.6.0] - 2026-03-15
+
+### Changed
+- **Sidebar logo** — Updated from `logo3_square.png` to `logo4.png`
+- **README rebrand** — Title changed to "UniOpsQC Hub", description updated to "UniOpsQC Hub Framework"
+
+---
 
 ## [1.4.0] - 2026-03-15
 

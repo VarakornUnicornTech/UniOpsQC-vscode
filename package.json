@@ -2,7 +2,7 @@
   "name": "roundtable-hub",
   "displayName": "UniOpsQC Hub",
   "description": "Management hub for UniOpsQC Framework — one-click install, visual setup, version management",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "publisher": "UnicornTech",
   "license": "MIT",
   "icon": "media/logo4.png",
