@@ -55,7 +55,7 @@ export function activate(context: vscode.ExtensionContext) {
         if (selection === 'Open Sidebar') {
           vscode.commands.executeCommand('roundtable-hub.sidebar.focus');
         } else if (selection === 'Learn More') {
-          vscode.env.openExternal(vscode.Uri.parse('https://github.com/VarakornUnicornTech/roundtable-framework'));
+          vscode.env.openExternal(vscode.Uri.parse('https://github.com/VarakornUnicornTech/UniOpsQC'));
         }
       });
     }
