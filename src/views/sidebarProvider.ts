@@ -51,7 +51,6 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           break;
         case 'updatePreview': {
           vscode.env.clipboard.writeText('/template preview').then(() => {
-            vscode.commands.executeCommand('claude-vscode.focus');
             vscode.window.showInformationMessage('Copied "/template preview" — paste in Claude Code to run.');
           });
           break;
@@ -119,11 +118,15 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
             const yyyy = now.getFullYear();
             const dateStr = `${dd}-${mm}-${yyyy}`;
             const rtDir = path.join(wsRoot, 'RoundTable');
-            const filePath = path.join(rtDir, `${dateStr}_RoundTable.md`);
             const fs = require('fs');
             if (!fs.existsSync(rtDir)) { fs.mkdirSync(rtDir, { recursive: true }); }
-            if (!fs.existsSync(filePath)) {
-              fs.writeFileSync(filePath, `# RoundTable — ${dateStr}\n\n---\n\n`, 'utf-8');
+            // Find existing Vol file for today, or create Vol1
+            const existing = fs.readdirSync(rtDir).find(
+              (f: string) => f.startsWith(dateStr) && /_RoundTable(_Vol\d+)?\.md$/.test(f)
+            );
+            const filePath = path.join(rtDir, existing || `${dateStr}_RoundTable_Vol1.md`);
+            if (!existing) {
+              fs.writeFileSync(filePath, `# RoundTable — ${dateStr} Vol 1\n\n---\n\n`, 'utf-8');
             }
             const doc = vscode.workspace.openTextDocument(filePath);
             doc.then((d: vscode.TextDocument) => vscode.window.showTextDocument(d));
@@ -139,6 +142,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           break;
         case 'refresh':
           this.updateContent();
+          vscode.window.setStatusBarMessage('$(check) UniOpsQC Hub refreshed', 2000);
           break;
       }
     });
@@ -332,7 +336,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
         </button>
         <button class="btn btn-secondary" onclick="send('updatePreview')">
           ${icons.sync}
-          <span>Update Preview</span>
+          <span>Copy Update Command</span>
         </button>
       </div>
     </div>
