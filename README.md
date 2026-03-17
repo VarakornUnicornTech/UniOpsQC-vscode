@@ -1,4 +1,8 @@
-# UniOpsQC Hub
+<p align="center">
+  <img src="media/uniopsqc-vscode_braner.png" alt="UniOpsQC Hub for VS Code" width="100%">
+</p>
+
+# UniOpsQC Hub for VS Code
 
 **Management hub for UniOpsQC Framework** — the multi-team AI governance framework for Claude Code.
 
@@ -15,32 +19,32 @@ Configure your `ProjectEnvironment.md` through an interactive wizard — no manu
 ### Version Check & Update Notifications
 Automatically checks for framework updates on startup. Compare your local version against the latest release and see what's changed in the changelog.
 
-### Smart Update Manager (Pro)
+### Smart Update Manager
 Review file-by-file changes with AI-powered merge recommendations. Selectively apply updates with automatic backup and one-click rollback.
 
-### Session Log Dashboard (Pro)
+### Session Log Dashboard
 Browse your RoundTable session history directly from the sidebar. View session stats, open/closed status, and click to open any log file instantly.
 
-### Visual ProjectEnvironment Editor (Pro)
+### Visual ProjectEnvironment Editor
 Add, edit, and remove projects through a sidebar form UI instead of editing markdown manually.
 
-### Framework Health Check (Pro)
+### Framework Health Check
 Verify framework integrity with a score and detailed file-by-file status report covering core files, policies, and team rosters.
 
-### Policy Browser (Pro)
+### Policy Browser
 Browse and open all governance policy files directly from the sidebar — quick access to every UniOpsQC policy section.
 
-### Team Roster Viewer (Pro)
+### Team Roster Viewer
 View all teams, members, roles, and responsibilities in a collapsible tree view. Click through to open the full roster file.
 
-### Session Statistics (Pro)
+### Session Statistics
 Track your UniOpsQC session activity with metrics like total sessions, daily averages, activity streaks, and team participation.
 
-### Quick Session Open (Free)
+### Quick Session Open
 One-click button to create or open today's RoundTable session file — no manual file navigation needed.
 
-### Pro License System
-Activate Pro features with a license key from our store. Supports online validation via LemonSqueezy API with offline fallback for uninterrupted work.
+### Push to Hub (Subscription)
+Push your project to the connected Hub API for centralized team management and reporting.
 
 ## Requirements
 
@@ -76,43 +80,39 @@ code --install-extension UnicornTech.roundtable-hub
 | `UniOpsQC: Install Framework` | Clone and install the framework into your workspace |
 | `UniOpsQC: Setup Project` | Configure ProjectEnvironment.md via interactive wizard |
 | `UniOpsQC: Check for Updates` | Compare local version against latest release |
-| `UniOpsQC: Update Framework` | Apply framework updates with backup (Pro) |
-| `UniOpsQC: Push to Hub` | Push your project to the connected Hub API (Pro) |
+| `UniOpsQC: Update Framework` | Apply framework updates with backup |
+| `UniOpsQC: Push to Hub` | Push your project to the connected Hub API (Subscription) |
 
 ## Settings
 
 | Setting | Default | Description |
 |---------|---------|-------------|
 | `roundtable.repoUrl` | `VarakornUnicornTech/UniOpsQC` | GitHub repository for the UniOpsQC Framework template |
-| `roundtable.licenseKey` | (empty) | License key for Pro features |
 | `roundtable.autoCheckUpdates` | `true` | Auto-check for updates on startup |
 | `roundtable.hubApiPath` | (empty) | Path to Hub.Api project for local Hub integration |
 | `roundtable.hubApiUrl` | `http://localhost:5200` | URL of the running Hub API server |
 
-## Free vs Pro
+## Free vs Subscription
 
-| Feature | Free | Pro |
-|---------|------|-----|
-| Install Framework | Yes | Yes |
-| Setup Project | Yes | Yes |
-| Check for Updates | Yes | Yes |
-| Quick Session Open | Yes | Yes |
-| Update Manager | - | Yes |
-| Auto-backup & Rollback | - | Yes |
-| Session Log Dashboard | - | Yes |
-| ProjectEnvironment Editor | - | Yes |
-| Framework Health Check | - | Yes |
-| Policy Browser | - | Yes |
-| Team Roster Viewer | - | Yes |
-| Session Statistics | - | Yes |
+| Feature | Free | Subscription |
+|---------|------|-------------|
+| Install Framework | ✓ | ✓ |
+| Setup Project | ✓ | ✓ |
+| Check for Updates | ✓ | ✓ |
+| Quick Session Open | ✓ | ✓ |
+| Update Manager | ✓ | ✓ |
+| Auto-backup & Rollback | ✓ | ✓ |
+| Session Log Dashboard | ✓ | ✓ |
+| ProjectEnvironment Editor | ✓ | ✓ |
+| Framework Health Check | ✓ | ✓ |
+| Policy Browser | ✓ | ✓ |
+| Team Roster Viewer | ✓ | ✓ |
+| Session Statistics | ✓ | ✓ |
+| Push to Hub | — | ✓ |
 
-## Free Trial
+## Hub API Subscription
 
-**All Pro features are free for 60 days** — no license key required. Install the extension and start using every feature immediately. When the trial ends, free-tier features remain available and you can upgrade to Pro to keep the full experience.
-
-## Get Pro
-
-Upgrade to Pro to unlock the full power of UniOpsQC Hub — Update Manager, Session Logs, Policy Browser, Team Roster Viewer, Health Check, Statistics, and more.
+**Push to Hub** connects your workspace to a running [UniOpsQC Hub API](https://github.com/VarakornUnicornTech/UniOpsQC) server for centralized project management and team reporting. All other features are fully free with no sign-up required.
 
 ## About UniOpsQC Framework
 
