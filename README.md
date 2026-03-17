@@ -1,6 +1,6 @@
-# RoundTable Hub
+# UniOpsQC Hub
 
-**Management hub for RoundTable Framework** — the multi-team AI governance framework for Claude Code.
+**Management hub for UniOpsQC Hub Framework** — the multi-team AI governance framework for Claude Code.
 
 By [Unicorn Tech Int Co.,Ltd.](https://github.com/VarakornUnicornTech)
 

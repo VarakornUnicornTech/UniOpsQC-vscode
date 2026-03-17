@@ -1,16 +1,16 @@
 {
   "name": "roundtable-hub",
-  "displayName": "RoundTable Hub",
-  "description": "Management hub for RoundTable Framework — one-click install, visual setup, version management",
-  "version": "1.2.1",
+  "displayName": "UniOpsQC Hub",
+  "description": "Management hub for UniOpsQC Framework — one-click install, visual setup, version management",
+  "version": "1.6.0",
   "publisher": "UnicornTech",
   "license": "MIT",
-  "icon": "media/logo3_square.png",
+  "icon": "media/logo4.png",
   "repository": {
     "type": "git",
     "url": "https://github.com/VarakornUnicornTech/roundtable-hub-vscode"
   },
-  "homepage": "https://github.com/VarakornUnicornTech/unicorn_roundtable_framework_repo",
+  "homepage": "https://github.com/VarakornUnicornTech/roundtable-framework",
   "engines": {
     "vscode": "^1.110.0"
   },
@@ -23,6 +23,7 @@
     "Machine Learning"
   ],
   "keywords": [
+    "UniOpsQC",
     "roundtable",
     "claude",
     "claude-code",
@@ -38,7 +39,7 @@
       "activitybar": [
         {
           "id": "roundtable-hub",
-          "title": "RoundTable Hub",
+          "title": "UniOpsQC Hub",
           "icon": "media/icon.svg"
         }
       ]
@@ -48,45 +49,59 @@
         {
           "type": "webview",
           "id": "roundtable-hub.sidebar",
-          "name": "RoundTable Hub"
+          "name": "UniOpsQC Hub"
         }
       ]
     },
     "commands": [
       {
         "command": "roundtable.install",
-        "title": "RoundTable: Install Framework"
+        "title": "UniOpsQC: Install Framework"
       },
       {
         "command": "roundtable.setup",
-        "title": "RoundTable: Setup Project"
+        "title": "UniOpsQC: Setup Project"
       },
       {
         "command": "roundtable.checkUpdate",
-        "title": "RoundTable: Check for Updates"
+        "title": "UniOpsQC: Check for Updates"
       },
       {
         "command": "roundtable.update",
-        "title": "RoundTable: Update Framework"
+        "title": "UniOpsQC: Update Framework"
+      },
+      {
+        "command": "roundtable.pushToHub",
+        "title": "UniOpsQC: Push to Hub"
       }
     ],
     "configuration": {
-      "title": "RoundTable Hub",
+      "title": "UniOpsQC Hub",
       "properties": {
         "roundtable.repoUrl": {
           "type": "string",
-          "default": "VarakornUnicornTech/unicorn_roundtable_framework_repo",
-          "description": "GitHub repository for RoundTable Framework template"
+          "default": "VarakornUnicornTech/roundtable-framework",
+          "description": "GitHub repository for UniOpsQC Framework template"
         },
         "roundtable.licenseKey": {
           "type": "string",
           "default": "",
-          "description": "License key for RoundTable Hub Pro features"
+          "description": "License key for UniOpsQC Hub Pro features"
         },
         "roundtable.autoCheckUpdates": {
           "type": "boolean",
           "default": true,
-          "description": "Automatically check for framework updates on startup"
+          "description": "Automatically check for UniOpsQC framework updates on startup"
+        },
+        "roundtable.hubApiPath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to Hub.Api project (e.g., D:/AI Projects/Projects/RoundTable-Hub/src/Hub.Api). Auto-detected if empty."
+        },
+        "roundtable.hubApiUrl": {
+          "type": "string",
+          "default": "http://localhost:5200",
+          "description": "URL of the running RoundTable Hub API server"
         }
       }
     }
@@ -98,10 +113,10 @@
     "lint": "tsc --noEmit"
   },
   "devDependencies": {
-    "@types/node": "^25.4.0",
+    "@types/node": "^25.5.0",
     "@types/vscode": "^1.110.0",
     "@vscode/vsce": "^3.7.1",
-    "esbuild": "^0.27.3",
+    "esbuild": "^0.27.4",
     "typescript": "^5.9.3"
   }
 }
