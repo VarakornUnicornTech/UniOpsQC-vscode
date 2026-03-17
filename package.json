@@ -8,9 +8,9 @@
   "icon": "media/logo4.png",
   "repository": {
     "type": "git",
-    "url": "https://github.com/VarakornUnicornTech/roundtable-hub-vscode"
+    "url": "https://github.com/VarakornUnicornTech/UniOpsQC-vscode"
   },
-  "homepage": "https://github.com/VarakornUnicornTech/roundtable-framework",
+  "homepage": "https://github.com/VarakornUnicornTech/UniOpsQC",
   "engines": {
     "vscode": "^1.110.0"
   },
@@ -80,7 +80,7 @@
       "properties": {
         "roundtable.repoUrl": {
           "type": "string",
-          "default": "VarakornUnicornTech/roundtable-framework",
+          "default": "VarakornUnicornTech/UniOpsQC",
           "description": "GitHub repository for UniOpsQC Framework template"
         },
         "roundtable.licenseKey": {
