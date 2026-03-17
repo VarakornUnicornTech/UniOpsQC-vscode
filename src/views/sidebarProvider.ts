@@ -49,6 +49,16 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
         case 'update':
           vscode.commands.executeCommand('roundtable.update');
           break;
+        case 'updatePreview': {
+          vscode.env.clipboard.writeText('/template preview').then(() => {
+            vscode.commands.executeCommand('claude-vscode.focus');
+            vscode.window.showInformationMessage('Copied "/template preview" — paste in Claude Code to run.');
+          });
+          break;
+        }
+        case 'pushToHub':
+          vscode.commands.executeCommand('roundtable.pushToHub');
+          break;
         case 'upgrade':
           vscode.env.openExternal(vscode.Uri.parse(PURCHASE_URL));
           break;
@@ -165,15 +175,13 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
       }
     }
 
-    const hasLicense = isProUser();
-    const trialActive = isTrialActive();
-    const isPro = hasLicense || trialActive;
-    const trialDays = trialActive ? getTrialDaysRemaining() : 0;
-    // proSource: 'license' | 'trial' | 'none'
-    const proSource = hasLicense ? 'license' : trialActive ? 'trial' : 'none';
+    // All features are free — Pro gate removed (revisit monetization later)
+    const isPro = true;
+    const trialDays = 0;
+    const proSource = 'free';
 
     const logoUri = this._view.webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, 'media', 'logo3_square.png')
+      vscode.Uri.joinPath(this._extensionUri, 'media', 'logo4.png')
     );
 
     this._view.webview.html = this.getHtml(installed, version, fileCount, isPro, logoUri, logFiles, projects, healthResults, policies, rosters, extStats, proSource, trialDays);
@@ -209,9 +217,9 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
     <!-- Header -->
     <div class="header">
-      <img src="${logoUri}" alt="RoundTable Hub" class="logo" />
+      <img src="${logoUri}" alt="UniOpsQC Hub" class="logo" />
       <div class="header-text">
-        <h1 class="title">RoundTable Hub</h1>
+        <h1 class="title">UniOpsQC Hub</h1>
         <span class="subtitle">by Unicorn Tech Int Co.,Ltd.</span>
       </div>
     </div>
@@ -222,10 +230,10 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     <div class="install-section">
       <div class="install-icon">${icons.desktopDownload}</div>
       <p class="install-heading">Get Started</p>
-      <p class="install-description">No RoundTable Framework detected in this workspace. Install it to enable multi-team AI governance.</p>
+      <p class="install-description">No UniOpsQC Framework detected in this workspace. Install it to enable multi-team AI governance.</p>
       <button class="btn btn-primary" onclick="send('install')">
         ${icons.desktopDownload}
-        <span>Install RoundTable Framework</span>
+        <span>Install UniOpsQC Framework</span>
       </button>
       <p class="hint">This will clone the framework and set up your .claude/ directory.</p>
     </div>
@@ -257,9 +265,9 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
     <!-- Header -->
     <div class="header">
-      <img src="${logoUri}" alt="RoundTable Hub" class="logo" />
+      <img src="${logoUri}" alt="UniOpsQC Hub" class="logo" />
       <div class="header-text">
-        <h1 class="title">RoundTable Hub</h1>
+        <h1 class="title">UniOpsQC Hub</h1>
         <span class="subtitle">by Unicorn Tech Int Co.,Ltd.</span>
       </div>
       <span class="badge ${proSource === 'license' ? 'badge-pro' : proSource === 'trial' ? 'badge-trial' : 'badge-free'}">${proSource === 'license' ? 'PRO' : proSource === 'trial' ? 'TRIAL' : 'FREE'}</span>
@@ -312,23 +320,20 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
         </button>
         <button class="btn btn-secondary" onclick="send('setup')">
           ${icons.gear}
-          <span>Setup Project</span>
+          <span>${projects.length > 0 ? `${projects.length} Project${projects.length > 1 ? 's' : ''} Configured` : 'Setup Project'}</span>
+        </button>
+        <button class="btn btn-secondary" onclick="send('pushToHub')">
+          ${icons.cloudUpload}
+          <span>Push to Hub</span>
         </button>
         <button class="btn btn-secondary" onclick="send('checkUpdate')">
           ${icons.cloudDownload}
           <span>Check for Updates</span>
         </button>
-        ${isPro
-          ? `<button class="btn btn-secondary" onclick="send('update')">
-              ${icons.sync}
-              <span>Update Framework</span>
-            </button>`
-          : `<button class="btn btn-disabled" disabled title="Upgrade to Pro to unlock">
-              ${icons.sync}
-              <span>Update Framework</span>
-              <span class="pro-lock">PRO</span>
-            </button>`
-        }
+        <button class="btn btn-secondary" onclick="send('updatePreview')">
+          ${icons.sync}
+          <span>Update Preview</span>
+        </button>
       </div>
     </div>
 
@@ -849,6 +854,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
     return {
       gear: s('<path fill-rule="evenodd" clip-rule="evenodd" d="M9.1 4.4L8.6 2H7.4L6.9 4.4L6.2 4.7L4.2 3.4L3.4 4.2L4.7 6.2L4.4 6.9L2 7.4V8.6L4.4 9.1L4.7 9.8L3.4 11.8L4.2 12.6L6.2 11.3L6.9 11.6L7.4 14H8.6L9.1 11.6L9.8 11.3L11.8 12.6L12.6 11.8L11.3 9.8L11.6 9.1L14 8.6V7.4L11.6 6.9L11.3 6.2L12.6 4.2L11.8 3.4L9.8 4.7L9.1 4.4ZM8 10C9.1046 10 10 9.1046 10 8C10 6.8954 9.1046 6 8 6C6.8954 6 6 6.8954 6 8C6 9.1046 6.8954 10 8 10Z"/>'),
+      cloudUpload: s('<path fill-rule="evenodd" clip-rule="evenodd" d="M11.957 6.02A3.5 3.5 0 005.121 5 3.5 3.5 0 002 8.5a3.483 3.483 0 001.874 3.086L3.17 12.3A4.483 4.483 0 011 8.5 4.5 4.5 0 015.41 4.01a4.5 4.5 0 018.548 1.278A3.5 3.5 0 0114.5 12h-1.548l.27-.713A2.5 2.5 0 0014.5 7a2.5 2.5 0 00-2.543-.98zM7.5 14V8.707L5.854 10.354l-.708-.708L8 6.793l2.854 2.853-.708.708L8.5 8.707V14h-1z"/>'),
       cloudDownload: s('<path fill-rule="evenodd" clip-rule="evenodd" d="M11.957 6.02A3.5 3.5 0 005.121 5 3.5 3.5 0 002 8.5a3.483 3.483 0 001.874 3.086L3.17 12.3A4.483 4.483 0 011 8.5 4.5 4.5 0 015.41 4.01a4.5 4.5 0 018.548 1.278A3.5 3.5 0 0114.5 12h-1.548l.27-.713A2.5 2.5 0 0014.5 7a2.5 2.5 0 00-2.543-.98zM8.5 7v5.293l1.646-1.647.708.708L8 14.207l-2.854-2.853.708-.708L7.5 12.293V7h1z"/>'),
       sync: s('<path fill-rule="evenodd" clip-rule="evenodd" d="M2.006 8.267L.78 9.5 0 8.73l2.09-2.07.76.01 2.09 2.12-.76.76-1.167-1.18a5 5 0 009.4 1.96l.94.34a6 6 0 01-11.35-2.4l.01.01zm11.986-.534L15.22 6.5l.78.77-2.09 2.07-.76-.01-2.09-2.12.76-.76 1.167 1.18a5 5 0 00-9.4-1.96l-.94-.34a6 6 0 0111.35 2.4l-.01-.01z"/>'),
       desktopDownload: s('<path fill-rule="evenodd" clip-rule="evenodd" d="M4 15H1V14H4V12H0V2H16V12H12V14H15V15H12H11H5H4ZM15 11V3H1V11H15ZM7.5 5V9.293L5.854 7.646L5.146 8.354L8 11.207L10.854 8.354L10.146 7.646L8.5 9.293V5H7.5Z"/>'),
