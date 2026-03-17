@@ -13,7 +13,7 @@ export function parseProjectEnvironment(workspaceRoot: string): ProjectConfig[] 
   const projects: ProjectConfig[] = [];
 
   // Match project blocks: ### Name followed by field lines
-  const projectRegex = /### (.+)\n\*\*PROJECT_MODE:\*\*\s*(.+)\n\*\*PROJECT_ROOT:\*\*\s*`([^`]*)`\n\*\*SOURCE_ROOT:\*\*\s*`([^`]*)`\n\*\*ACTIVE:\*\*\s*(.+)\n\*\*Notes:\*\*\s*(.+)/g;
+  const projectRegex = /### (.+)\r?\n\*\*PROJECT_MODE:\*\*\s*(.+)\r?\n\*\*PROJECT_ROOT:\*\*\s*`([^`]*)`\r?\n\*\*SOURCE_ROOT:\*\*\s*`([^`]*)`\r?\n\*\*ACTIVE:\*\*\s*(.+)\r?\n\*\*Notes:\*\*\s*(.+)/g;
 
   let match;
   while ((match = projectRegex.exec(content)) !== null) {
