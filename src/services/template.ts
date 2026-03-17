@@ -34,8 +34,17 @@ export class TemplateService {
   }
 
   getLocalVersion(): string | null {
+    // Try .claude/template-version.json first (Hub Install path)
     try {
       const content = fs.readFileSync(this.versionFilePath, 'utf-8');
+      const version = JSON.parse(content).version;
+      if (version) { return version; }
+    } catch { /* fall through */ }
+
+    // Fallback: root template-version.json (Manual Install path)
+    try {
+      const rootPath = path.join(this.workspaceRoot, 'template-version.json');
+      const content = fs.readFileSync(rootPath, 'utf-8');
       return JSON.parse(content).version || null;
     } catch {
       return null;

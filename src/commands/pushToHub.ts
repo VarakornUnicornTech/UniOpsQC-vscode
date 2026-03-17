@@ -16,6 +16,22 @@ export async function pushToHub(): Promise<void> {
 
   const workspaceRoot = workspaceFolders[0].uri.fsPath;
 
+  // Guard: Hub API subscription required
+  const hubApiUrl = vscode.workspace.getConfiguration('roundtable').get<string>('hubApiUrl', 'http://localhost:5200');
+  const hubApiPath = vscode.workspace.getConfiguration('roundtable').get<string>('hubApiPath', '');
+  const isDefaultUrl = hubApiUrl === 'http://localhost:5200' || hubApiUrl === '';
+  if (isDefaultUrl && !hubApiPath) {
+    vscode.window.showInformationMessage(
+      'Push to Hub requires a Hub API subscription. Set up your Hub API server and configure roundtable.hubApiUrl in settings.',
+      'Learn More'
+    ).then((choice) => {
+      if (choice === 'Learn More') {
+        vscode.env.openExternal(vscode.Uri.parse('https://github.com/oiovibecode/UniOpsQC-vscode#hub-api-subscription'));
+      }
+    });
+    return;
+  }
+
   // Check that UniOpsQC Framework is installed
   const fs = require('fs');
   const claudeMd = path.join(workspaceRoot, '.claude', 'CLAUDE.md');

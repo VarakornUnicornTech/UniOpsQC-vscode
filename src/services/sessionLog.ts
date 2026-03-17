@@ -27,7 +27,7 @@ export function scanRoundTableLogs(workspaceRoot: string): RoundTableFile[] {
   const files: RoundTableFile[] = [];
 
   const entries = fs.readdirSync(roundTableDir).filter(
-    (f) => f.endsWith('_RoundTable.md') || f.endsWith('_RoundTable_Vol2.md') || f.endsWith('_RoundTable_Vol3.md')
+    (f) => /_RoundTable(_Vol\d+)?\.md$/.test(f)
   );
 
   for (const filename of entries) {
